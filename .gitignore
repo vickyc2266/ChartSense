@@ -1,0 +1,24 @@
+# Ignore massive model weights
+ThinkMorph-7B/
+
+# Data & non-essential assets
+data/
+assets/
+test_images/
+
+# Training artifacts
+train/checkpoints/
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Python env
+.venv/
+__pycache__/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS noise
+.DS_Store
