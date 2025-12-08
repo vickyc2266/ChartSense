@@ -21,10 +21,11 @@ image = (
         "opencv-python-headless==4.5.5.64",
         "safetensors",
         "torchvision",
-        "transformers==4.49.0",
+        "transformers==4.39.3",
         "einops",
         "tqdm",
-        "sentencepiece"
+        "sentencepiece",
+        "huggingface_hub",
     )
     .add_local_dir(
         LOCAL_CODE,
@@ -62,8 +63,8 @@ def run_inference(image_bytes: bytes, prompt: str):
     sys.path.insert(0, "/root/ThinkMorph")
     sys.path.insert(1, model_path)
 
-    import numpy as np
     import random
+    import numpy as np
     
     from data.transforms import ImageTransform
     from data.data_utils import pil_img2rgb, add_special_tokens
@@ -74,26 +75,28 @@ def run_inference(image_bytes: bytes, prompt: str):
         Bagel,
         Qwen2Config,
         Qwen2ForCausalLM,
-        SiglipVisionConfig,
-        SiglipVisionModel
+        # SiglipVisionConfig,
+        # SiglipVisionModel
     )
+    from modeling.bagel.siglip_navit import SiglipVisionConfig, SiglipVisionModel
     from modeling.qwen2 import Qwen2Tokenizer
     from modeling.autoencoder import load_ae
 
     from accelerate import infer_auto_device_map, load_checkpoint_and_dispatch, init_empty_weights
     from safetensors.torch import load_file
-    from transformers import SiglipVisionModel, SiglipVisionConfig
+    # from transformers import SiglipVisionModel, SiglipVisionConfig
 
     llm_config = Qwen2Config.from_json_file(f"{model_path}/llm_config.json")
-
-    vit_model = SiglipVisionModel.from_pretrained(
-        "google/siglip-so400m-patch14-384",
-        torch_dtype=torch.bfloat16,
-        device_map="cpu"
-    )
-
     vit_config = SiglipVisionConfig.from_json_file(f"{model_path}/vit_config.json")
-    vae_model, vae_config = load_ae(f"{model_path}/ae.safetensors")
+
+    # vit_model = SiglipVisionModel.from_pretrained(
+    #     "google/siglip-so400m-patch14-384",
+    #     torch_dtype=torch.bfloat16,
+    #     device_map="cpu"
+    # )
+
+    # vit_config = SiglipVisionConfig.from_json_file(f"{model_path}/vit_config.json")
+
 
     llm_config.qk_norm = True
     llm_config.tie_word_embeddings = False
@@ -101,6 +104,7 @@ def run_inference(image_bytes: bytes, prompt: str):
 
     vit_config.rope = False
     vit_config.num_hidden_layers -= 1
+    vae_model, vae_config = load_ae(f"{model_path}/ae.safetensors")
 
 
     config = BagelConfig(

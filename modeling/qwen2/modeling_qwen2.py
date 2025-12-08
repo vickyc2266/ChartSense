@@ -17,7 +17,8 @@ from transformers.modeling_outputs import (
     BaseModelOutputWithPast,
     CausalLMOutputWithPast,
 )
-from transformers.modeling_rope_utils import ROPE_INIT_FUNCTIONS
+# from transformers.modeling_rope_utils import ROPE_INIT_FUNCTIONS
+from modeling.transformers_compat.modeling_rope_utils import ROPE_INIT_FUNCTIONS
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import (
     add_start_docstrings,
@@ -31,7 +32,8 @@ from .configuration_qwen2 import Qwen2Config
 
 
 if is_flash_attn_2_available():
-    from transformers.modeling_flash_attention_utils import _flash_attention_forward
+    # from transformers.modeling_flash_attention_utils import _flash_attention_forward
+    from modeling.transformers_compat.modeling_flash_attention_utils import _flash_attention_forward
 
 
 logger = logging.get_logger(__name__)

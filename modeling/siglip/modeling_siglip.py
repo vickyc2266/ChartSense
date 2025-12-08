@@ -19,6 +19,7 @@ from transformers.activations import ACT2FN
 from transformers.modeling_attn_mask_utils import _prepare_4d_attention_mask
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPooling, ImageClassifierOutput
 from transformers.modeling_utils import PreTrainedModel
+from modeling.transformers_compat.torch_int import torch_int
 from transformers.utils import (
     ModelOutput,
     add_start_docstrings,
@@ -27,13 +28,14 @@ from transformers.utils import (
     is_flash_attn_greater_or_equal_2_10,
     logging,
     replace_return_docstrings,
-    torch_int,
+    # torch_int,
 )
 from .configuration_siglip import SiglipConfig, SiglipTextConfig, SiglipVisionConfig
 
 
 if is_flash_attn_2_available():
-    from transformers.modeling_flash_attention_utils import _flash_attention_forward
+    # from transformers.modeling_flash_attention_utils import _flash_attention_forward
+    from modeling.transformers_compat.modeling_flash_attention_utils import _flash_attention_forward
 
 
 logger = logging.get_logger(__name__)

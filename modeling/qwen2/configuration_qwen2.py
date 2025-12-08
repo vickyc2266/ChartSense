@@ -4,7 +4,8 @@
 """Qwen2 model configuration"""
 
 from transformers.configuration_utils import PretrainedConfig
-from transformers.modeling_rope_utils import rope_config_validation
+# from transformers.modeling_rope_utils import rope_config_validation
+from modeling.transformers_compat.modeling_rope_utils import rope_config_validation
 from transformers.utils import logging
 
 
