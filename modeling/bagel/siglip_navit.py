@@ -161,12 +161,17 @@ class SiglipVisionEmbeddings(nn.Module):
             stride=self.patch_size,
             padding="valid",
         )
+        self.convert_conv2d_to_linear(config)
+
+       
+        # --- END PATCH ---
 
         self.num_patches_per_side = self.image_size // self.patch_size
         self.num_patches = self.num_patches_per_side**2
         self.num_positions = self.num_patches
         if not config.rope:
             self.position_embedding = nn.Embedding(self.num_positions, self.embed_dim)
+            
 
     def convert_conv2d_to_linear(self, config, meta=False):
         if meta:

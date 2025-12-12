@@ -45,6 +45,7 @@ image = (
 )
 def run_inference(image_bytes: bytes, prompt: str):
     import os
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
     import sys
     
     from huggingface_hub import snapshot_download, login
@@ -70,17 +71,31 @@ def run_inference(image_bytes: bytes, prompt: str):
     from data.data_utils import pil_img2rgb, add_special_tokens
 
 
-    from modeling.bagel import (
-        BagelConfig,
-        Bagel,
-        Qwen2Config,
-        Qwen2ForCausalLM,
-        # SiglipVisionConfig,
-        # SiglipVisionModel
-    )
+    # from modeling.bagel import (
+    #     BagelConfig,
+    #     Bagel,
+    #     # Qwen2Config,
+    #     # Qwen2ForCausalLM,
+    #     # SiglipVisionConfig,
+    #     SiglipVisionModel
+    # )
+    # from modeling.bagel.siglip_navit import SiglipVisionConfig
+    # from modeling.qwen2 import Qwen2Tokenizer, Qwen2Config
+    # from modeling.autoencoder import load_ae
+    # from modeling.qwen2 import Qwen2ForCausalLM
+
+    from modeling.bagel import BagelConfig, Bagel
     from modeling.bagel.siglip_navit import SiglipVisionConfig, SiglipVisionModel
-    from modeling.qwen2 import Qwen2Tokenizer
+
+    from modeling.qwen2 import (
+        Qwen2Tokenizer,
+        Qwen2Config,
+        Qwen2ForCausalLM
+    )
+
     from modeling.autoencoder import load_ae
+
+
 
     from accelerate import infer_auto_device_map, load_checkpoint_and_dispatch, init_empty_weights
     from safetensors.torch import load_file
@@ -88,6 +103,7 @@ def run_inference(image_bytes: bytes, prompt: str):
 
     llm_config = Qwen2Config.from_json_file(f"{model_path}/llm_config.json")
     vit_config = SiglipVisionConfig.from_json_file(f"{model_path}/vit_config.json")
+    vit_config.use_linear_patch_embedding = True
 
     # vit_model = SiglipVisionModel.from_pretrained(
     #     "google/siglip-so400m-patch14-384",
@@ -127,9 +143,17 @@ def run_inference(image_bytes: bytes, prompt: str):
     model = load_checkpoint_and_dispatch(
         model,
         checkpoint=f"{model_path}/model.safetensors",
-        device_map=infer_auto_device_map(
+        # device_map=infer_auto_device_map(
+        #     model,
+        #     max_memory={0: "30GiB"},
+        #     no_split_module_classes=["Bagel", "Qwen2MoTDecoderLayer"],
+        # ),
+        device_map = infer_auto_device_map(
             model,
-            max_memory={0: "30GiB"},
+            max_memory={
+                "cpu": "300GiB",  
+                0: "10GiB",       
+            },
             no_split_module_classes=["Bagel", "Qwen2MoTDecoderLayer"],
         ),
         dtype=torch.bfloat16,

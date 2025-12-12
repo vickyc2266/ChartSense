@@ -24,7 +24,7 @@ from data.data_utils import (
     get_flattened_position_ids_interpolate,
     patchify, 
 )
-from .qwen2_navit import NaiveCache
+# from .qwen2_navit import NaiveCache
 from .modeling_utils import MLPconnector, TimestepEmbedder, PositionEmbedding
 from modeling.cache_utils.taylorseer import cache_init
 
@@ -273,7 +273,8 @@ class Bagel(PreTrainedModel):
     @torch.no_grad
     def forward_cache_update_text(
         self,
-        past_key_values: NaiveCache,
+        # past_key_values: NaiveCache,
+        past_key_values: Optional[Any],
         packed_text_ids: torch.IntTensor,
         packed_text_position_ids: torch.LongTensor,
         text_token_lens: torch.LongTensor,
@@ -368,7 +369,8 @@ class Bagel(PreTrainedModel):
     @torch.no_grad
     def forward_cache_update_vit(
         self,
-        past_key_values: NaiveCache,
+        # past_key_values: NaiveCache,
+        past_key_values: Optional[Any],
         packed_text_ids: torch.LongTensor,
         packed_text_indexes: torch.LongTensor,
         packed_vit_tokens: torch.Tensor,
@@ -498,7 +500,8 @@ class Bagel(PreTrainedModel):
     def forward_cache_update_vae(
         self,
         vae_model,
-        past_key_values: NaiveCache,
+        # past_key_values: NaiveCache,
+        past_key_values: Optional[Any],
         padded_images: torch.Tensor,
         patchified_vae_latent_shapes: List,
         packed_vae_position_ids: torch.LongTensor,
@@ -658,7 +661,8 @@ class Bagel(PreTrainedModel):
         packed_seqlens: torch.IntTensor,
         packed_position_ids: torch.LongTensor,
         packed_indexes: torch.LongTensor,
-        past_key_values: NaiveCache,
+        # past_key_values: NaiveCache,
+        past_key_values: Optional[Any],
         key_values_lens: torch.IntTensor,
         packed_key_value_indexes: torch.LongTensor,
         num_timesteps: int = 24,
@@ -670,14 +674,16 @@ class Bagel(PreTrainedModel):
         cfg_text_scale: float = 1.0,
         cfg_text_packed_query_indexes: Optional[torch.LongTensor] = None,
         cfg_text_packed_position_ids: Optional[torch.LongTensor] = None,
-        cfg_text_past_key_values: Optional[NaiveCache] = None,
+        # cfg_text_past_key_values: Optional[NaiveCache] = None,
+        cfg_text_past_key_values: Optional[Optional[Any]] = None,
         cfg_text_key_values_lens: Optional[torch.IntTensor] = None,
         cfg_text_packed_key_value_indexes: Optional[torch.LongTensor] = None,
         # cfg_img
         cfg_img_scale: float = 1.0,
         cfg_img_packed_query_indexes: Optional[torch.LongTensor] = None,
         cfg_img_packed_position_ids: Optional[torch.LongTensor] = None,
-        cfg_img_past_key_values: Optional[NaiveCache] = None,
+        # cfg_img_past_key_values: Optional[NaiveCache] = None,
+        cfg_img_past_key_values: Optional[Optional[Any]] = None,
         cfg_img_key_values_lens: Optional[torch.IntTensor] = None,
         cfg_img_packed_key_value_indexes: Optional[torch.LongTensor] = None,
         cfg_type: str = "parallel",
@@ -773,7 +779,8 @@ class Bagel(PreTrainedModel):
         packed_position_ids: torch.LongTensor,
         packed_seqlens: torch.IntTensor,
         key_values_lens: torch.IntTensor,
-        past_key_values: NaiveCache,
+        # past_key_values: NaiveCache,
+        past_key_values: Optional[Any],
         packed_key_value_indexes: torch.LongTensor,
         cfg_renorm_min: float = 0.0,
         cfg_renorm_type: str = "global",
@@ -782,14 +789,15 @@ class Bagel(PreTrainedModel):
         cfg_text_packed_position_ids: Optional[torch.LongTensor] = None,
         cfg_text_packed_query_indexes: Optional[torch.LongTensor] = None,
         cfg_text_key_values_lens: Optional[torch.Tensor] = None,
-        cfg_text_past_key_values: Optional[NaiveCache] = None,
+        cfg_text_past_key_values: Optional[Any] = None,
         cfg_text_packed_key_value_indexes: Optional[torch.LongTensor] = None,
         # cfg_img
         cfg_img_scale: float = 1.0,
         cfg_img_packed_position_ids: Optional[torch.LongTensor] = None,
         cfg_img_packed_query_indexes: Optional[torch.LongTensor] = None,
         cfg_img_key_values_lens: Optional[torch.Tensor] = None,
-        cfg_img_past_key_values: Optional[NaiveCache] = None,
+        # cfg_img_past_key_values: Optional[NaiveCache] = None,
+        cfg_img_past_key_values: Optional[Optional[Any]] = None,
         cfg_img_packed_key_value_indexes: Optional[torch.LongTensor] = None,
         cfg_type: str = "parallel",
         # cache
@@ -936,7 +944,8 @@ class Bagel(PreTrainedModel):
     @torch.no_grad
     def generate_text(
         self,
-        past_key_values: NaiveCache,
+        # past_key_values: NaiveCache,
+        past_key_values: Optional[Any],
         packed_key_value_indexes: torch.LongTensor,
         key_values_lens: torch.IntTensor,
         packed_start_tokens: torch.LongTensor,
@@ -1029,7 +1038,8 @@ class Bagel(PreTrainedModel):
             new_token_ids = new_token_ids.to(device)
 
         # prefill
-        past_key_values = NaiveCache(self.config.llm_config.num_hidden_layers)
+        # past_key_values = NaiveCache(self.config.llm_config.num_hidden_layers)
+        past_key_values = Optional[Any]
         newlens = [0]
         new_rope = [0]
 

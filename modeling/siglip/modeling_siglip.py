@@ -258,6 +258,38 @@ class SiglipVisionEmbeddings(nn.Module):
         self.num_positions = self.num_patches
         self.position_embedding = nn.Embedding(self.num_positions, self.embed_dim)
         self.register_buffer("position_ids", torch.arange(self.num_positions).expand((1, -1)), persistent=False)
+    
+    def load_pretrained_patch_embedding(self, state_dict):
+        """
+        Fix mismatch between Linear patch embedding weights from pretrained SigLIP
+        and Conv2D patch embedding expected by ThinkMorph.
+        """
+
+        # Weight in checkpoint: [embed_dim, patch_size*patch_size*3]
+        # Expected: [embed_dim, 3, patch_size, patch_size]
+        key = "vision_model.embeddings.patch_embedding.weight"
+
+        if key not in state_dict:
+            return state_dict
+
+        w = state_dict[key]
+
+        # If already Conv2D shape, do nothing
+        if w.ndim == 4:
+            return state_dict
+
+        embed_dim = self.embed_dim
+        ps = self.patch_size
+
+        print("⚠️ Reshaping SigLIP patch embedding from Linear -> Conv2D")
+
+        # Reshape
+        w = w.reshape(embed_dim, 3, ps, ps)
+
+        # Replace in dict
+        state_dict[key] = w
+        return state_dict
+
 
     def interpolate_pos_encoding(self, embeddings: torch.Tensor, height: int, width: int) -> torch.Tensor:
         """
